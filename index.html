@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>帝伯朗测算工具</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>电商业务测算工具</title>
     <style>
         body {
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
@@ -94,16 +93,9 @@
             margin: 8px 0;
             font-size: 15px;
             color: #333;
+            font-weight: bold;
         }
-        .highlight { color: #f56c6c; font-weight: bold;}
-        .profit { color: #67c23a; font-weight: bold;}
-        .loss { color: #f56c6c; font-weight: bold;}
-
-        /* 图表容器 */
-        .chart-container {
-            margin-top: 20px;
-            display: none;
-        }
+        .highlight { color: #f56c6c; }
 
         /* 历史记录区 */
         .history-box {
@@ -130,7 +122,7 @@
             padding: 10px;
             border-radius: 6px;
             margin-bottom: 8px;
-            font-size: 13px;
+            font-size: 14px;
             color: #555;
             border-left: 4px solid #409eff;
         }
@@ -139,7 +131,7 @@
 <body>
 
     <div class="container">
-        <h2>帝伯朗测算工具</h2>
+        <h2>电商业务测算工具</h2>
         
         <div id="formArea">
             <div class="input-group">
@@ -178,13 +170,6 @@
             <p>投流消耗：<span class="highlight" id="outAdSpend"></span></p>
             <p>实际费比：<span class="highlight" id="outExpenseRatio"></span></p>
             <p>达人收入：<span class="highlight" id="outInfluencerIncome"></span></p>
-            <p style="border-top: 1px solid #e1f3d8; padding-top: 8px; margin-top: 8px;">
-                预估毛利：<span id="outNetProfit"></span>
-            </p>
-        </div>
-
-        <div class="chart-container" id="chartContainer">
-            <canvas id="fundChart"></canvas>
         </div>
 
         <div class="history-box" id="historyBox">
@@ -194,8 +179,6 @@
     </div>
 
     <script>
-        let myChart = null; // 用于存储图表实例
-
         function calculateData() {
             let GMV = parseFloat(document.getElementById('targetGMV').value) || 0;
             let ROI = parseFloat(document.getElementById('targetROI').value) || 0;
@@ -219,86 +202,27 @@
             if (netGMV > 0) {
                 expenseRatio = (adSpend + influencerIncome + otherFees) / netGMV;
             }
-            
-            // 新增计算：预估毛利 (退后GMV - 投流 - 达人 - 其他)
-            let netProfit = netGMV - adSpend - influencerIncome - otherFees;
 
-            // 1. 渲染文字结果
+            // 渲染文字结果
             document.getElementById('outNetGMV').innerText = netGMV.toFixed(2) + "万";
             document.getElementById('outAdSpend').innerText = adSpend.toFixed(2) + "万";
             document.getElementById('outExpenseRatio').innerText = (expenseRatio * 100).toFixed(2) + "%";
             document.getElementById('outInfluencerIncome').innerText = influencerIncome.toFixed(2) + "万";
-            
-            let profitEl = document.getElementById('outNetProfit');
-            if(netProfit >= 0){
-                profitEl.innerText = netProfit.toFixed(2) + "万";
-                profitEl.className = "profit";
-            } else {
-                profitEl.innerText = netProfit.toFixed(2) + "万 (亏损)";
-                profitEl.className = "loss";
-            }
 
             document.getElementById('resultBox').style.display = 'block';
 
-            // 2. 渲染饼状图
-            renderChart(adSpend, influencerIncome, otherFees, netProfit);
-
-            // 3. 增加一条历史记录
-            addHistoryRecord(GMV, ROI, expenseRatio, netProfit);
+            // 增加一条历史记录
+            addHistoryRecord(GMV, ROI, expenseRatio);
         }
 
-        function renderChart(adSpend, influencerIncome, otherFees, netProfit) {
-            document.getElementById('chartContainer').style.display = 'block';
-            const ctx = document.getElementById('fundChart').getContext('2d');
-            
-            // 如果图表已存在，先销毁旧的，防止重叠重绘
-            if (myChart) {
-                myChart.destroy();
-            }
-
-            let labels = ['投流消耗', '达人收入', '其他费用'];
-            let data = [adSpend, influencerIncome, otherFees];
-            let colors = ['#ff9f40', '#ff6384', '#36a2eb'];
-
-            // 只有当毛利大于0时，才在饼图里展示利润部分
-            if (netProfit > 0) {
-                labels.push('预估毛利');
-                data.push(netProfit);
-                colors.push('#4bc0c0');
-            }
-
-            myChart = new Chart(ctx, {
-                type: 'doughnut', // 圆环图
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: colors,
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        title: { display: true, text: '退后GMV资金去向' }
-                    }
-                }
-            });
-        }
-
-        function addHistoryRecord(GMV, ROI, expenseRatio, netProfit) {
+        function addHistoryRecord(GMV, ROI, expenseRatio) {
             document.getElementById('historyBox').style.display = 'block';
             let list = document.getElementById('historyList');
             let li = document.createElement('li');
             
-            let profitText = netProfit >= 0 ? 
-                `<span class="profit">赚 ${netProfit.toFixed(2)}万</span>` : 
-                `<span class="loss">亏 ${Math.abs(netProfit).toFixed(2)}万</span>`;
-
             // 记录当前的测算条件和核心结果
             li.innerHTML = `<b>目标GMV:</b> ${GMV}万 | <b>ROI:</b> ${ROI} <br> 
-                            <b>结果:</b> 费比 ${(expenseRatio*100).toFixed(1)}% | 预估毛利: ${profitText}`;
+                            <b>测算费比:</b> <span style="color:#f56c6c; font-weight:bold;">${(expenseRatio*100).toFixed(2)}%</span>`;
             
             // 将新记录插入到列表的最上面
             list.insertBefore(li, list.firstChild);
@@ -309,9 +233,8 @@
             let inputs = document.querySelectorAll('#formArea input');
             inputs.forEach(input => input.value = '');
             
-            // 隐藏结果区和图表区，保留历史记录（方便比对）
+            // 隐藏结果区，保留历史记录
             document.getElementById('resultBox').style.display = 'none';
-            document.getElementById('chartContainer').style.display = 'none';
         }
     </script>
 </body>
