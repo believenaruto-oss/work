@@ -114,7 +114,7 @@
             list-style: none;
             padding: 0;
             margin: 0;
-            max-height: 200px;
+            max-height: 250px; /* 稍微增加了高度，方便看更多记录 */
             overflow-y: auto;
         }
         .history-list li {
@@ -125,6 +125,7 @@
             font-size: 14px;
             color: #555;
             border-left: 4px solid #409eff;
+            line-height: 1.5; /* 增加行高让多行文本看起来不那么拥挤 */
         }
     </style>
 </head>
@@ -211,18 +212,19 @@
 
             document.getElementById('resultBox').style.display = 'block';
 
-            // 增加一条历史记录
-            addHistoryRecord(GMV, ROI, expenseRatio);
+            // 增加一条历史记录 (将达人收入一并传入)
+            addHistoryRecord(GMV, ROI, expenseRatio, influencerIncome);
         }
 
-        function addHistoryRecord(GMV, ROI, expenseRatio) {
+        function addHistoryRecord(GMV, ROI, expenseRatio, influencerIncome) {
             document.getElementById('historyBox').style.display = 'block';
             let list = document.getElementById('historyList');
             let li = document.createElement('li');
             
-            // 记录当前的测算条件和核心结果
+            // 记录当前的测算条件和核心结果 (新增达人收入字段)
             li.innerHTML = `<b>目标GMV:</b> ${GMV}万 | <b>ROI:</b> ${ROI} <br> 
-                            <b>测算费比:</b> <span style="color:#f56c6c; font-weight:bold;">${(expenseRatio*100).toFixed(2)}%</span>`;
+                            <b>测算费比:</b> <span style="color:#f56c6c; font-weight:bold;">${(expenseRatio*100).toFixed(2)}%</span> | 
+                            <b>达人收入:</b> <span style="color:#67c23a; font-weight:bold;">${influencerIncome.toFixed(2)}万</span>`;
             
             // 将新记录插入到列表的最上面
             list.insertBefore(li, list.firstChild);
