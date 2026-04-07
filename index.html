@@ -21,12 +21,25 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
-        h2 {
+        /* 头部 Logo 和标题区域样式 */
+        .header-area {
             text-align: center;
-            color: #333;
-            margin-top: 0;
             margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ebeef5;
         }
+        .header-area img {
+            max-height: 55px; /* 控制 Logo 大小 */
+            max-width: 100%;
+            margin-bottom: 10px;
+        }
+        .header-area h2 {
+            color: #333;
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+        
         .input-group {
             margin-bottom: 15px;
         }
@@ -114,25 +127,37 @@
             list-style: none;
             padding: 0;
             margin: 0;
-            max-height: 250px; /* 稍微增加了高度，方便看更多记录 */
+            max-height: 280px; 
             overflow-y: auto;
         }
         .history-list li {
             background-color: #f8f9fa;
-            padding: 10px;
+            padding: 12px 10px;
             border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 10px;
+            font-size: 13px;
             color: #555;
             border-left: 4px solid #409eff;
-            line-height: 1.5; /* 增加行高让多行文本看起来不那么拥挤 */
+        }
+        /* 历史记录内的网格布局，让字段排列更整齐 */
+        .record-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 分成两列 */
+            gap: 6px 10px; /* 行间距6px，列间距10px */
+        }
+        .record-grid span {
+            display: flex;
+            justify-content: space-between;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>帝伯朗测算工具</h2>
+        <div class="header-area">
+            <img src="logo.png" alt="TIBORANG 帝伯朗">
+            <h2>帝伯朗测算工具</h2>
+        </div>
         
         <div id="formArea">
             <div class="input-group">
@@ -185,7 +210,9 @@
             let ROI = parseFloat(document.getElementById('targetROI').value) || 0;
             let returnRate = (parseFloat(document.getElementById('returnRate').value) || 0) / 100;
             let otherFees = parseFloat(document.getElementById('otherFees').value) || 0;
-            let commissionRate = (parseFloat(document.getElementById('commissionRate').value) || 0) / 100;
+            // 记录原始的佣金比例，用于历史记录展示
+            let rawCommissionRate = parseFloat(document.getElementById('commissionRate').value) || 0;
+            let commissionRate = rawCommissionRate / 100;
             let upfrontFee = parseFloat(document.getElementById('upfrontFee').value) || 0;
 
             if (ROI === 0 && GMV !== 0) {
@@ -212,19 +239,26 @@
 
             document.getElementById('resultBox').style.display = 'block';
 
-            // 增加一条历史记录 (将达人收入一并传入)
-            addHistoryRecord(GMV, ROI, expenseRatio, influencerIncome);
+            // 增加一条历史记录 (传入全部 6 个所需字段)
+            addHistoryRecord(GMV, ROI, upfrontFee, rawCommissionRate, influencerIncome, expenseRatio);
         }
 
-        function addHistoryRecord(GMV, ROI, expenseRatio, influencerIncome) {
+        function addHistoryRecord(GMV, ROI, upfrontFee, rawCommissionRate, influencerIncome, expenseRatio) {
             document.getElementById('historyBox').style.display = 'block';
             let list = document.getElementById('historyList');
             let li = document.createElement('li');
             
-            // 记录当前的测算条件和核心结果 (新增达人收入字段)
-            li.innerHTML = `<b>目标GMV:</b> ${GMV}万 | <b>ROI:</b> ${ROI} <br> 
-                            <b>测算费比:</b> <span style="color:#f56c6c; font-weight:bold;">${(expenseRatio*100).toFixed(2)}%</span> | 
-                            <b>达人收入:</b> <span style="color:#67c23a; font-weight:bold;">${influencerIncome.toFixed(2)}万</span>`;
+            // 使用网格布局展示 6 个字段
+            li.innerHTML = `
+                <div class="record-grid">
+                    <span><b>目标GMV:</b> ${GMV}万</span>
+                    <span><b>ROI:</b> ${ROI}</span>
+                    <span><b>前置费用:</b> ${upfrontFee}万</span>
+                    <span><b>佣金:</b> ${rawCommissionRate}%</span>
+                    <span><b>达人收入:</b> <strong style="color:#67c23a;">${influencerIncome.toFixed(2)}万</strong></span>
+                    <span><b>费比:</b> <strong style="color:#f56c6c;">${(expenseRatio * 100).toFixed(2)}%</strong></span>
+                </div>
+            `;
             
             // 将新记录插入到列表的最上面
             list.insertBefore(li, list.firstChild);
