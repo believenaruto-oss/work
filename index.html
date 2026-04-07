@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电商回本测算工具</title>
+    <title>帝伯朗测算工具</title>
     <style>
         /* 这里是 CSS（网页外观） */
         body {
@@ -44,7 +44,7 @@
             border: 1px solid #dcdfe6;
             border-radius: 6px;
             font-size: 16px;
-            box-sizing: border-box; /* 确保 padding 不会撑破宽度 */
+            box-sizing: border-box; 
             outline: none;
             transition: border-color 0.2s;
         }
@@ -74,7 +74,7 @@
             border: 1px solid #e1f3d8;
             border-radius: 6px;
             color: #67c23a;
-            display: none; /* 初始状态隐藏 */
+            display: none; 
         }
         .result-box p {
             margin: 8px 0;
@@ -90,7 +90,7 @@
 <body>
 
     <div class="container">
-        <h2>电商业务测算</h2>
+        <h2>帝伯朗测算工具</h2>
         
         <div class="input-group">
             <label>目标GMV (单位：万)</label>
@@ -121,54 +121,48 @@
 
         <div class="result-box" id="resultBox">
             <p>退后GMV是（<span class="highlight" id="outNetGMV"></span>）</p>
+            <p>投流消耗金额是（<span class="highlight" id="outAdSpend"></span>）</p>
             <p>费比是（<span class="highlight" id="outExpenseRatio"></span>）</p>
             <p>达人收入是（<span class="highlight" id="outInfluencerIncome"></span>）</p>
         </div>
     </div>
 
     <script>
-        // 这里是 JavaScript（计算逻辑）
         function calculateData() {
-            // 1. 获取用户输入的值，如果为空则默认为0
             let GMV = parseFloat(document.getElementById('targetGMV').value) || 0;
             let ROI = parseFloat(document.getElementById('targetROI').value) || 0;
-            // 百分比数值需要除以 100 进行计算
             let returnRate = (parseFloat(document.getElementById('returnRate').value) || 0) / 100;
             let otherFees = parseFloat(document.getElementById('otherFees').value) || 0;
             let commissionRate = (parseFloat(document.getElementById('commissionRate').value) || 0) / 100;
             let upfrontFee = parseFloat(document.getElementById('upfrontFee').value) || 0;
 
-            // 防止 ROI 为 0 导致计算错误（除以0）
             if (ROI === 0 && GMV !== 0) {
                 alert("目标ROI不能为0！");
                 return;
             }
 
-            // 2. 根据公式进行计算
-            // 退后GMV = 目标GMV * (1 - 预估退货率)
             let netGMV = GMV * (1 - returnRate);
             
             // 投流消耗 = 目标GMV / 目标ROI
             let adSpend = (ROI > 0) ? (GMV / ROI) : 0;
             
-            // 达人佣金金额 = 退后GMV * 达人佣金
             let commissionAmount = netGMV * commissionRate;
             
-            // 实际费比 = （投流消耗+达人佣金金额+福袋及其他费用合计+前置费用）/ 退后GMV
             let expenseRatio = 0;
             if (netGMV > 0) {
                 expenseRatio = (adSpend + commissionAmount + otherFees + upfrontFee) / netGMV;
             }
             
-            // 达人收入 = 前置费用 + 达人佣金金额
             let influencerIncome = upfrontFee + commissionAmount;
 
-            // 3. 将结果输出到页面，并保留两位小数。为了直观，补充了单位说明。
             document.getElementById('outNetGMV').innerText = netGMV.toFixed(2) + "万";
+            
+            // ⬇️ 新增的逻辑：将算好的投流消耗推送到页面上
+            document.getElementById('outAdSpend').innerText = adSpend.toFixed(2) + "万";
+            
             document.getElementById('outExpenseRatio').innerText = (expenseRatio * 100).toFixed(2) + "%";
             document.getElementById('outInfluencerIncome').innerText = influencerIncome.toFixed(2) + "万";
 
-            // 显示结果框
             document.getElementById('resultBox').style.display = 'block';
         }
     </script>
