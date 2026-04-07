@@ -21,23 +21,18 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
-        /* 头部 Logo 和标题区域样式 */
+        /* 头部 Logo 区域样式（已精简） */
         .header-area {
             text-align: center;
             margin-bottom: 20px;
-            padding-bottom: 15px;
+            padding-bottom: 10px;
             border-bottom: 1px solid #ebeef5;
         }
         .header-area img {
-            max-height: 75px; /* 控制 Logo 大小 */
+            max-height: 72px; 
             max-width: 100%;
-            margin-bottom: 10px;
-        }
-        .header-area h2 {
-            color: #333;
-            margin: 0;
-            font-size: 22px;
-            letter-spacing: 1px;
+            display: block;
+            margin: 0 auto; /* 确保 Logo 绝对居中 */
         }
         
         .input-group {
@@ -139,11 +134,11 @@
             color: #555;
             border-left: 4px solid #409eff;
         }
-        /* 历史记录内的网格布局，让字段排列更整齐 */
+        /* 历史记录内的网格布局 */
         .record-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 分成两列 */
-            gap: 6px 10px; /* 行间距6px，列间距10px */
+            grid-template-columns: 1fr 1fr; 
+            gap: 6px 10px; 
         }
         .record-grid span {
             display: flex;
@@ -156,7 +151,6 @@
     <div class="container">
         <div class="header-area">
             <img src="logo.png" alt="TIBORANG 帝伯朗">
-            <h2>帝伯朗测算工具</h2>
         </div>
         
         <div id="formArea">
@@ -210,7 +204,6 @@
             let ROI = parseFloat(document.getElementById('targetROI').value) || 0;
             let returnRate = (parseFloat(document.getElementById('returnRate').value) || 0) / 100;
             let otherFees = parseFloat(document.getElementById('otherFees').value) || 0;
-            // 记录原始的佣金比例，用于历史记录展示
             let rawCommissionRate = parseFloat(document.getElementById('commissionRate').value) || 0;
             let commissionRate = rawCommissionRate / 100;
             let upfrontFee = parseFloat(document.getElementById('upfrontFee').value) || 0;
@@ -239,7 +232,7 @@
 
             document.getElementById('resultBox').style.display = 'block';
 
-            // 增加一条历史记录 (传入全部 6 个所需字段)
+            // 增加一条历史记录
             addHistoryRecord(GMV, ROI, upfrontFee, rawCommissionRate, influencerIncome, expenseRatio);
         }
 
@@ -248,7 +241,6 @@
             let list = document.getElementById('historyList');
             let li = document.createElement('li');
             
-            // 使用网格布局展示 6 个字段
             li.innerHTML = `
                 <div class="record-grid">
                     <span><b>目标GMV:</b> ${GMV}万</span>
@@ -260,16 +252,12 @@
                 </div>
             `;
             
-            // 将新记录插入到列表的最上面
             list.insertBefore(li, list.firstChild);
         }
 
         function resetForm() {
-            // 清空所有输入框
             let inputs = document.querySelectorAll('#formArea input');
             inputs.forEach(input => input.value = '');
-            
-            // 隐藏结果区，保留历史记录
             document.getElementById('resultBox').style.display = 'none';
         }
     </script>
